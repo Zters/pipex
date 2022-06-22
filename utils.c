@@ -128,7 +128,7 @@ char *find_path(char *command, char **envp) // yol bulucu
 	while(paths[i])
 	{
 		path = ft_strjoin(paths[i], "/", command);
-		if (access(path, X_OK) == 0)
+		if (access(path, F_OK) == 0)
 			return(path);
 		++i;
 	}

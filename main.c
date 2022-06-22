@@ -12,7 +12,7 @@ int	ft_parent(char **argv, char **envp, int *pipefd)
 	char	**command;
 	int		out;
 
-	out = open(argv[4], O_WRONLY | O_CREAT);
+	out = open(argv[4], O_WRONLY | O_CREAT, 0777);
 	if (out == -1 || close(pipefd[1]) == -1 || dup2(pipefd[0],
 			STDIN_FILENO) == -1 || dup2(out, STDOUT_FILENO) == -1)
 		ft_error("\x1b[1;31\x7mError");
@@ -29,7 +29,7 @@ int	ft_child(char **argv, char **envp, int *pipefd)
 	char	**command;
 	int		in;
 
-	in = open(argv[1], O_RDONLY);
+	in = open(argv[1], O_RDONLY, 0777);
 	if (in == -1 || close(pipefd[0]) == -1 || dup2(pipefd[1],
 			STDOUT_FILENO) == -1 || dup2(in, STDIN_FILENO) == -1)
 		ft_error("\x1b[1;31\x7mError");
