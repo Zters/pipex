@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tyanar <tyanar@student.42istanbul.com.t    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/22 19:18:21 by tyanar            #+#    #+#             */
+/*   Updated: 2022/06/22 19:26:02 by tyanar           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
 int	ft_strlen(const char *str)
@@ -10,128 +22,48 @@ int	ft_strlen(const char *str)
 	return (i);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2, char const *s3)
+char	*ft_strnstr(const char *s1, const char *s2, size_t n)
 {
-	char	*a;
-	int		i;
-
-	if (!s1 || !s2 || !s3)
-		return (NULL);
-	a = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) +ft_strlen(s3) +1 ));
-	if (!a)
-		return (NULL);
-	i = 0;
-	while (*s1)
-		a[i++] = *(char *)s1++;
-	while (*s2)
-		a[i++] = *(char *)s2++;
-	while(*s3)
-		a[i++] = *(char *)s3++;
-	a[i] = 0;
-	return (a);
-}
-
-int	ft_lettercount(char const *s, char c)
-{
-	int	count;
-
-	count = 0;
-	while (s[count] && s[count] != c)
-		count++;
-	return (count);
-}
-
-int	ft_wordcount(char const *s, char c)
-{
-	int	i;
-	int	chk;
-	int	count;
+	size_t	i;
+	size_t	j;
 
 	i = 0;
-	count = 0;
-	chk = 0;
-	while (s[i])
+	if (s2[0] == '\0')
+		return ((char *)s1);
+	while (s1[i] != '\0')
 	{
-		while (s[i] == c)
-			i++;
-		chk = ft_lettercount(s + i, c);
-		i += chk;
-		if (chk)
-			count++;
-	}
-	return (count);
-}
-
-char	*ft_wordadd(char const *s, int letter_n, char **rtn)
-{
-	char	*word;
-	int		i;
-	int		j;
-
-	i = 0;
-	j = 0;
-	word = malloc((sizeof(char) * letter_n) + 1);
-	if (!word)
-	{
-		while (rtn[j] != NULL)
+		j = 0;
+		while (s1[i + j] == s2[j] && (i + j) < n)
 		{
-			free(rtn[j]);
+			if (s1[i + j] == '\0' && s2[j] == '\0')
+				return ((char *)&s1[i]);
 			j++;
 		}
-		return (NULL);
-	}
-	while (i < letter_n && s[i])
-	{
-		word[i] = s[i];
+		if (s2[j] == '\0')
+			return ((char *)s1 + i);
 		i++;
 	}
-	word[i] = '\0';
-	return (word);
+	return (0);
 }
 
-char	**ft_split(char const *s, char c)
+char	*find_path(char *command, char **envp)
 {
-	char	**rtn;
-	int		word_n;
-	int		letter_n;
 	int		i;
-	int		j;
+	char	**paths;
+	char	*path;
 
 	i = 0;
-	j = 0;
-	word_n = ft_wordcount(s, c);
-	rtn = malloc(sizeof(char *) * (word_n + 1));
-	if (!rtn)
-		return (NULL);
-	while (j < word_n)
-	{
-		while (s[i] == c)
-			i++;
-		letter_n = ft_lettercount(s + i, c);
-		rtn[j] = ft_wordadd(s + i, letter_n, rtn);
-		i += letter_n;
-		j++;
-	}
-	rtn[j] = NULL;
-	return (rtn);
-}
-char *find_path(char *command, char **envp) // yol bulucu
-{
-	int i = 0;
-	char **paths;
-	char *path;
-	
-	while(strnstr(envp[i], "PATH" , 4) == 0)
+	while (ft_strnstr(envp[i], "PATH", 4) == 0)
 		++i;
 	paths = ft_split(envp[i] + 5, ':');
 	i = 0;
-	while(paths[i])
+	while (paths[i])
 	{
 		path = ft_strjoin(paths[i], "/", command);
-		if (access(path, F_OK) == 0)
-			return(path);
+		if (access(path, X_OK) == 0)
+			return (path);
 		++i;
 	}
 	ft_error("\x1b[1;31\x7mError");
-	return(NULL);
-} 
+	return (NULL);
+}

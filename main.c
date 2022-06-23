@@ -1,4 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tyanar <tyanar@student.42istanbul.com.t    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/22 19:18:09 by tyanar            #+#    #+#             */
+/*   Updated: 2022/06/22 20:50:32 by tyanar           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
+#include <fcntl.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <stdio.h>
 
 void	ft_error(char *str)
 {
@@ -12,12 +28,12 @@ int	ft_parent(char **argv, char **envp, int *pipefd)
 	char	**command;
 	int		out;
 
-	out = open(argv[4], O_WRONLY | O_CREAT, 0777);
+	out = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (out == -1 || close(pipefd[1]) == -1 || dup2(pipefd[0],
 			STDIN_FILENO) == -1 || dup2(out, STDOUT_FILENO) == -1)
 		ft_error("\x1b[1;31\x7mError");
 	command = ft_split(argv[3], ' ');
-	com_path = find_path(command[0],envp);
+	com_path = find_path(command[0], envp);
 	if (execve(com_path, command, envp) == -1)
 		ft_error("\x1b[1;31\x7mError");
 	return (0);
@@ -34,7 +50,7 @@ int	ft_child(char **argv, char **envp, int *pipefd)
 			STDOUT_FILENO) == -1 || dup2(in, STDIN_FILENO) == -1)
 		ft_error("\x1b[1;31\x7mError");
 	command = ft_split(argv[2], ' ');
-	com_path = find_path(command[0],envp);
+	com_path = find_path(command[0], envp);
 	if (execve(com_path, command, envp) == -1)
 		ft_error("\x1b[1;31\x7mError");
 	return (0);
@@ -43,22 +59,22 @@ int	ft_child(char **argv, char **envp, int *pipefd)
 int	main(int argc, char **argv, char **envp)
 	{
 	int		pid;
-	int		pipefd[2];// 0 İNPUT 1 OUTPUT  BUNLARI KOYABİLMEK İCİN 2 VERDİK  
+	int		pipefd[2];
 
-	if (argc == 5) // arg kontrol
+	if (argc == 5)
 	{
-		if (pipe(pipefd) == 1)
-			ft_error("\x1b[1;31\x7mError"); // processlerin iletisim kurmasi icin fdleri ayarliyo
-		pid = fork(); // prcessin bir kopyasini olusturuyor
-		if (pid == -1) // process kontrol
+		if (pipe(pipefd) == -1)
 			ft_error("\x1b[1;31\x7mError");
-		if (pid == 0) // child isen
-			if (!ft_child(argv, envp, pipefd)) // argumanlar env ve fdler ile child in yapicaga isleme gidiyo
+		pid = fork();
+		if (pid == -1)
+			ft_error("\x1b[1;31\x7mError");
+		if (pid == 0)
+			if (!ft_child(argv, envp, pipefd))
 				ft_error("\x1b[1;31\x7mError");
-		waitpid(pid, NULL, 0); // pid bekliyor childin görevini bitirmesini bekliyor 
-		if (ft_parent(argv, envp, pipefd)) // argumanlar env ve fdler ile parent processin yapacagi isleme gidiyor
+		waitpid(pid, NULL, 0);
+		if (ft_parent(argv, envp, pipefd))
 			ft_error("\x1b[1;31\x7mError");
 		return (0);
 	}
-	ft_error("\x1b[1;31\x7mError"); //https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797  x1b esc tusu 1 alinlastiriyo 31 kirmizi yapiyo x7 terminal alarmi
+	ft_error("\x1b[1;31\x7mError");
 }

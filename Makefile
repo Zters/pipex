@@ -1,5 +1,5 @@
 NAME = pipex
-SRCS = main.c utils.c 
+SRCS = main.c utils.c utils2.c
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -Wall -Wextra -Werror
 CC = gcc
