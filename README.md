@@ -63,6 +63,7 @@ FD .
 *	close ile bir dosya betimleyicisi sonlandırılması ve dup ile açılması temelde çalışsada aksama durumlarında veya çoklu çekirdek(multi thread)işlem yaparken sorunlara neden olabilemektedir bu nedenle dup 2 kullanırız.
 *	dup2(param 1, param 2) ilk parametre olarak çuğaltıacak FDyı alır 2. parametre olarak  kapatılacak dosyayıalır. işlem sonunda param2 deki FD param 1 deki FD ile aynı dosya nesnesini gösterir.
 Örnek :
+
 FD 0		Std input		dosya nesnesi 0
 FD 1		Std output		dosya nesnesi 1
 FD 2		Std error		dosya nesnesi 1
